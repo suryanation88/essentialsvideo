@@ -12,6 +12,8 @@ const Home = () => {
   const [newlyAddedVideos, setNewlyAddedVideos] = useState([]);
   const [thisWeekVideos, setThisWeekVideos] = useState([]);
   const [thisMonthVideos, setThisMonthVideos] = useState([]);
+  const [searchResults, setSearchResults] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -34,6 +36,19 @@ const Home = () => {
     };
 
     fetchVideos();
+
+    // Menambahkan event listener untuk pencarian
+    const handleSearch = (event) => {
+      const { searchText, results } = event.detail;
+      setSearchText(searchText);
+      setSearchResults(results);
+    };
+
+    window.addEventListener("search-video", handleSearch);
+
+    return () => {
+      window.removeEventListener("search-video", handleSearch);
+    };
   }, []);
 
   const filterVideos = (videos) => {
@@ -72,7 +87,7 @@ const Home = () => {
       );
     }
     return videoArray.map((video) => (
-      <Col xs={24} sm={12} md={8} lg={6} xl={6} key={video.play_id} style={{ marginBottom: "16px" }}>
+      <Col xs={24} sm={12} md={8} lg={6} xl={6} key={video.id_play} style={{ marginBottom: "16px" }}>
         <Card
           hoverable
           cover={<img alt={video.play_name} src={video.play_thumbnail} style={{ height: "180px", objectFit: "cover" }} />}
@@ -92,14 +107,23 @@ const Home = () => {
         </Button>
       </div>
 
-      <h3 style={{ marginBottom: "16px" }}>Baru ditambahkan</h3>
-      <Row gutter={[16, 16]}>{renderVideoCards(newlyAddedVideos)}</Row>
+      {searchText ? (
+        <>
+          <h3 style={{ marginBottom: "16px" }}>Hasil Pencarian: {searchText}</h3>
+          <Row gutter={[16, 16]}>{renderVideoCards(searchResults || [])}</Row>
+        </>
+      ) : (
+        <>
+          <h3 style={{ marginBottom: "16px" }}>Baru ditambahkan</h3>
+          <Row gutter={[16, 16]}>{renderVideoCards(newlyAddedVideos)}</Row>
 
-      <h3 style={{ marginTop: "32px", marginBottom: "16px" }}>Minggu ini</h3>
-      <Row gutter={[16, 16]}>{renderVideoCards(thisWeekVideos)}</Row>
+          <h3 style={{ marginTop: "32px", marginBottom: "16px" }}>Minggu ini</h3>
+          <Row gutter={[16, 16]}>{renderVideoCards(thisWeekVideos)}</Row>
 
-      <h3 style={{ marginTop: "32px", marginBottom: "16px" }}>Bulan ini</h3>
-      <Row gutter={[16, 16]}>{renderVideoCards(thisMonthVideos)}</Row>
+          <h3 style={{ marginTop: "32px", marginBottom: "16px" }}>Bulan ini</h3>
+          <Row gutter={[16, 16]}>{renderVideoCards(thisMonthVideos)}</Row>
+        </>
+      )}
     </div>
   );
 };

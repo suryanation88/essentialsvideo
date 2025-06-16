@@ -8,7 +8,6 @@ const HeaderSearch = () => {
   const [loading, setLoading] = useState(false);
   const searchTimeout = useRef(null);
   const navigate = useNavigate();
-
   const searchVideos = async (value) => {
     try {
       setLoading(true);
